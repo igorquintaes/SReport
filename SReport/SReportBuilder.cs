@@ -24,15 +24,52 @@ namespace SReportLog
             return this;
         }
 
-        public SReportBuilder WithPageStateHtml()
+        public SReportBuilder WithProfilingLogs()
+        {
+            sReport.Profiling = true;
+            return this;
+        }
+
+        public SReportBuilder WithServerMessagesLogs()
+        {
+            sReport.ServerMessages = true;
+            return this;
+        }
+
+        public SReportBuilder WithSeleniumClientLogs()
+        {
+            sReport.SeleniumClient = true;
+            return this;
+        }
+
+        public SReportBuilder WithWebDriverInstanceLogs()
+        {
+            sReport.WebDriverInstance = true;
+            return this;
+        }
+
+        public SReportBuilder WithPageStateHtmlLogs()
         {
             sReport.PageStateHtml = true;
             return this;
         }
 
-        public SReportBuilder WithGeneralInfo()
+        public SReportBuilder WithGeneralInfoLogs()
         {
             sReport.GeneralInfo = true;
+            return this;
+        }
+
+        public SReportBuilder WithAllLogsEnabled()
+        {
+            sReport.BrowserConsole = true;
+            sReport.GeneralInfo = true;
+            sReport.PageStateHtml = true;
+            sReport.Profiling = true;
+            sReport.Screenshoot = true;
+            sReport.SeleniumClient = true;
+            sReport.ServerMessages = true;
+            sReport.WebDriverInstance = true;
             return this;
         }
 

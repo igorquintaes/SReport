@@ -15,6 +15,10 @@ namespace SReportLog
         public bool BrowserConsole { get; internal set; }
         public bool GeneralInfo { get; internal set; }
         public bool PageStateHtml { get; internal set; }
+        public bool SeleniumClient { get; internal set; }
+        public bool WebDriverInstance { get; internal set; }
+        public bool Profiling { get; internal set; }
+        public bool ServerMessages { get; internal set; }
 
         internal SReport(IWebDriver driver, string logsPath)
         {
@@ -70,6 +74,74 @@ namespace SReportLog
                             stream.WriteLine($"DateTime: {browserLog.Timestamp.ToLongTimeString()}");
                             stream.WriteLine($"Level: {browserLog.Level}");
                             stream.WriteLine($"Message: {browserLog.Message} {Environment.NewLine}");
+                        }
+                    }
+                }
+            }
+
+            if (SeleniumClient)
+            {
+                var clientLogs = _driver.Manage().Logs.GetLog(LogType.Client).OrderBy(x => x.Timestamp);
+                if (clientLogs.Any())
+                {
+                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(SeleniumClient)}.txt")))
+                    {
+                        foreach (var clientLog in clientLogs)
+                        {
+                            stream.WriteLine($"DateTime: {clientLog.Timestamp.ToLongTimeString()}");
+                            stream.WriteLine($"Level: {clientLog.Level}");
+                            stream.WriteLine($"Message: {clientLog.Message} {Environment.NewLine}");
+                        }
+                    }
+                }
+            }
+
+            if (WebDriverInstance)
+            {
+                var driverLogs = _driver.Manage().Logs.GetLog(LogType.Driver).OrderBy(x => x.Timestamp);
+                if (driverLogs.Any())
+                {
+                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(WebDriverInstance)}.txt")))
+                    {
+                        foreach (var driverLog in driverLogs)
+                        {
+                            stream.WriteLine($"DateTime: {driverLog.Timestamp.ToLongTimeString()}");
+                            stream.WriteLine($"Level: {driverLog.Level}");
+                            stream.WriteLine($"Message: {driverLog.Message} {Environment.NewLine}");
+                        }
+                    }
+                }
+            }
+
+            if (Profiling)
+            {
+                var profilerLogs = _driver.Manage().Logs.GetLog(LogType.Profiler).OrderBy(x => x.Timestamp);
+                if (profilerLogs.Any())
+                {
+                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(Profiling)}.txt")))
+                    {
+                        foreach (var profilerLog in profilerLogs)
+                        {
+                            stream.WriteLine($"DateTime: {profilerLog.Timestamp.ToLongTimeString()}");
+                            stream.WriteLine($"Level: {profilerLog.Level}");
+                            stream.WriteLine($"Message: {profilerLog.Message} {Environment.NewLine}");
+                        }
+                    }
+                }
+            }
+
+            if (ServerMessages)
+            {
+                var serverLogs = _driver.Manage().Logs.GetLog(LogType.Server).OrderBy(x => x.Timestamp);
+                if (serverLogs.Any())
+                {
+                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(ServerMessages)}.txt")))
+                    {
+                        foreach (var serverLog in serverLogs)
+                        {
+                            stream.WriteLine($"DateTime: {serverLog.Timestamp.ToLongTimeString()}");
+                            stream.WriteLine($"Level: {serverLog.Level}");
+                            stream.WriteLine($"Message: {serverLog.Message} {Environment.NewLine}");
                         }
                     }
                 }
