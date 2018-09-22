@@ -34,20 +34,20 @@ namespace SReportLog
             if (_driver == null)
                 return;
 
-            var tesLogtFolder = Path.Combine(LogsPath, testName);
+            var tesLogFolder = Path.Combine(LogsPath, testName);
 
-            if (!Directory.Exists(tesLogtFolder))
-                Directory.CreateDirectory(tesLogtFolder);
+            if (!Directory.Exists(tesLogFolder))
+                Directory.CreateDirectory(tesLogFolder);
             else
             {
-                var files = (new DirectoryInfo(tesLogtFolder)).GetFiles();
+                var files = (new DirectoryInfo(tesLogFolder)).GetFiles();
                 foreach (var file in files)
                     file.Delete();
             }
 
             if (GeneralInfo)
             {
-                using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(GeneralInfo)}.txt")))
+                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(GeneralInfo)}.txt")))
                 {
                     stream.WriteLine($"Date: {DateTime.Now.ToLongDateString()} - {DateTime.Now.ToLongTimeString()}");
                     stream.WriteLine($"Test name: {testName} {Environment.NewLine}");
@@ -59,92 +59,32 @@ namespace SReportLog
             if (Screenshoot)
             {
                 var screenshot = (_driver as ITakesScreenshot).GetScreenshot();
-                screenshot.SaveAsFile(Path.Combine(tesLogtFolder, $"{nameof(Screenshoot)}.png"), ScreenshotImageFormat.Png);
+                screenshot.SaveAsFile(Path.Combine(tesLogFolder, $"{nameof(Screenshoot)}.png"), ScreenshotImageFormat.Png);
             }
 
             if (BrowserConsole)
             {
-                var browserLogs = _driver.Manage().Logs.GetLog(LogType.Browser).OrderBy(x => x.Timestamp);
-                if (browserLogs.Any())
-                {
-                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(BrowserConsole)}.txt")))
-                    {
-                        foreach (var browserLog in browserLogs)
-                        {
-                            stream.WriteLine($"DateTime: {browserLog.Timestamp.ToLongTimeString()}");
-                            stream.WriteLine($"Level: {browserLog.Level}");
-                            stream.WriteLine($"Message: {browserLog.Message} {Environment.NewLine}");
-                        }
-                    }
-                }
+                SeleniumLog(tesLogFolder, LogType.Browser);
             }
 
             if (SeleniumClient)
             {
-                var clientLogs = _driver.Manage().Logs.GetLog(LogType.Client).OrderBy(x => x.Timestamp);
-                if (clientLogs.Any())
-                {
-                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(SeleniumClient)}.txt")))
-                    {
-                        foreach (var clientLog in clientLogs)
-                        {
-                            stream.WriteLine($"DateTime: {clientLog.Timestamp.ToLongTimeString()}");
-                            stream.WriteLine($"Level: {clientLog.Level}");
-                            stream.WriteLine($"Message: {clientLog.Message} {Environment.NewLine}");
-                        }
-                    }
-                }
+                SeleniumLog(tesLogFolder, LogType.Client);
             }
 
             if (WebDriverInstance)
             {
-                var driverLogs = _driver.Manage().Logs.GetLog(LogType.Driver).OrderBy(x => x.Timestamp);
-                if (driverLogs.Any())
-                {
-                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(WebDriverInstance)}.txt")))
-                    {
-                        foreach (var driverLog in driverLogs)
-                        {
-                            stream.WriteLine($"DateTime: {driverLog.Timestamp.ToLongTimeString()}");
-                            stream.WriteLine($"Level: {driverLog.Level}");
-                            stream.WriteLine($"Message: {driverLog.Message} {Environment.NewLine}");
-                        }
-                    }
-                }
+                SeleniumLog(tesLogFolder, LogType.Driver);
             }
 
             if (Profiling)
             {
-                var profilerLogs = _driver.Manage().Logs.GetLog(LogType.Profiler).OrderBy(x => x.Timestamp);
-                if (profilerLogs.Any())
-                {
-                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(Profiling)}.txt")))
-                    {
-                        foreach (var profilerLog in profilerLogs)
-                        {
-                            stream.WriteLine($"DateTime: {profilerLog.Timestamp.ToLongTimeString()}");
-                            stream.WriteLine($"Level: {profilerLog.Level}");
-                            stream.WriteLine($"Message: {profilerLog.Message} {Environment.NewLine}");
-                        }
-                    }
-                }
+                SeleniumLog(tesLogFolder, LogType.Profiler);
             }
 
             if (ServerMessages)
             {
-                var serverLogs = _driver.Manage().Logs.GetLog(LogType.Server).OrderBy(x => x.Timestamp);
-                if (serverLogs.Any())
-                {
-                    using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(ServerMessages)}.txt")))
-                    {
-                        foreach (var serverLog in serverLogs)
-                        {
-                            stream.WriteLine($"DateTime: {serverLog.Timestamp.ToLongTimeString()}");
-                            stream.WriteLine($"Level: {serverLog.Level}");
-                            stream.WriteLine($"Message: {serverLog.Message} {Environment.NewLine}");
-                        }
-                    }
-                }
+                SeleniumLog(tesLogFolder, LogType.Server);
             }
 
             if (PageStateHtml)
@@ -153,7 +93,7 @@ namespace SReportLog
                     .Where(x => !string.IsNullOrWhiteSpace(x.GetAttribute("href")) && x.GetAttribute("rel").ToLower() == "stylesheet")
                     .Select(x => x.GetAttribute("href"));
 
-                using (var stream = File.CreateText(Path.Combine(tesLogtFolder, $"{nameof(PageStateHtml)}.htm")))
+                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(PageStateHtml)}.htm")))
                 {
                     stream.WriteLine(_driver.PageSource);
                     foreach(var style in styles)
@@ -166,6 +106,23 @@ namespace SReportLog
                             }
                             catch { }
                         }
+                    }
+                }
+            }
+        }
+
+        private void SeleniumLog(string folder, string logType)
+        {
+            var logs = _driver.Manage().Logs.GetLog(logType).OrderBy(x => x.Timestamp);
+            if (logs.Any())
+            {
+                using (var stream = File.CreateText(Path.Combine(folder, $"{nameof(logType)}.txt")))
+                {
+                    foreach (var log in logs)
+                    {
+                        stream.WriteLine($"DateTime: {log.Timestamp.ToLongTimeString()}");
+                        stream.WriteLine($"Level: {log.Level}");
+                        stream.WriteLine($"Message: {log.Message} {Environment.NewLine}");
                     }
                 }
             }
