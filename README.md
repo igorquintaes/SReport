@@ -6,10 +6,17 @@ SReport is a log manager for Selenium based tests and projects
 You should to use `SReportBuilder` to generate a log Report file, based on what type of logs you want and the desired log folder. You can do that this way:
 
 ```
-SReport = _logReport = SReportBuilder.Setup(Driver, baseLocation)
+SReport = _logReport = SReportBuilder.Setup(yourIWebDriver, baseLocation)
                 .WithAllLogsEnabled()
                 .Build();
 ```
+
+After that, you just can call the method `Log` whenever you want to genetare a log based on test or a context.
+
+```
+_logReport.Log("your text name / context name");
+```
+
 
 ### Customizations
 
@@ -23,3 +30,5 @@ SReport = _logReport = SReportBuilder.Setup(Driver, baseLocation)
                 .WithScreenshoot()
                 .Build();
 ```
+
+
