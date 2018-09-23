@@ -31,7 +31,7 @@ SReport = _logReport = SReportBuilder.Setup(Driver, baseLocation)
                 .Build();
 ```
 
-### Logs explanations
+### Logs explanation
 
 * **Screenshoot**: 
 Take a Screenshoot based in the Browser View, and saves it as .png file.
