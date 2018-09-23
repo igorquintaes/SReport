@@ -20,7 +20,7 @@ _logReport.Log("your text name / context name");
 
 ### Customizations
 
-* If you are not looking fo all logs, just a screenshoot or browser console info, you can filter them after the `Setup` method, calling from the SReportBuilder. As Example:
+If you are not looking fo all logs, just a screenshoot or browser console info, you can filter them after the `Setup` method, calling from the SReportBuilder. As Example:
 
 ```
 SReport = _logReport = SReportBuilder.Setup(Driver, baseLocation)
@@ -30,5 +30,31 @@ SReport = _logReport = SReportBuilder.Setup(Driver, baseLocation)
                 .WithScreenshoot()
                 .Build();
 ```
+
+### Logs explanations
+
+* **Screenshoot**: 
+Take a Screenshoot based in the Browser View, and saves it as .png file.
+
+* **Browser Console**: 
+Saves a text file containing browser console content.
+
+* **General Info**:
+Saves a text file containing the test name, generation date, OS and framework version.
+
+* **Page State Html**:
+Create a .htm file with the real state of the page. It can be also manipulated in a browser DevTools to be easy to correct errors based on element queries.
+
+* **WebDriver Instance**:
+Log Based on Selenium Web Driver Messages log type.
+
+* **Selenium Client**:
+Log Based on Selenium Server log type. 
+
+* **Selenium Client**:
+Log Based on Selenium Client log type. 
+
+* **Profiling**:
+Log Based on Selenium Profile log type. 
 
 
