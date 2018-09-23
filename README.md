@@ -1,5 +1,5 @@
 # SReport
-SReport is a log manager for Selenium based tests and projects
+SReport is a log manager for [Selenium](https://github.com/SeleniumHQ/selenium) based tests and projects
 
 ### How to use
 
