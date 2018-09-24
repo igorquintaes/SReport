@@ -6,7 +6,7 @@ SReport is a log manager for [Selenium](https://github.com/SeleniumHQ/selenium) 
 Call `SReportBuilder` to generate a log Report file, based on what type of logs you want and the desired log folder. You should do it only one time:
 
 ```csharp
-SReport = _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
+SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
                 .WithAllLogsEnabled()
                 .Build();
 ```
@@ -23,7 +23,7 @@ _logReport.Log("your test name / context name");
 If you are not looking fo all logs, just a screenshoot or browser console info, you can filter them after the `Setup` method, calling from the SReportBuilder. As Example:
 
 ```csharp
-SReport = _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
+SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
                 .WithConsoleLogs()
                 .WithGeneralInfo()
                 .WithPageStateHtml()
