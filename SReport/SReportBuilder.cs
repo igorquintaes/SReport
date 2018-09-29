@@ -17,9 +17,7 @@ namespace SReportLog
         public SReportBuilder AddLog(params SLog[] logs)
         {
             foreach(var log in logs)
-            {
                 sReport.sLogs |= log;
-            }
 
             return this;
         }

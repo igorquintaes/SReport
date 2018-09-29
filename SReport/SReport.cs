@@ -3,13 +3,13 @@ using OpenQA.Selenium;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace SReportLog
 {
     public class SReport
     {
         private readonly IWebDriver _driver;
-        private string _templatePath;
 
         internal SLog sLogs;
 
@@ -21,18 +21,15 @@ namespace SReportLog
             LogsPath = logsPath;
             _driver = driver;
 
-            if (!Directory.Exists(logsPath))
-                Directory.CreateDirectory(logsPath);
-            else
-            {
-                var files = (new DirectoryInfo(logsPath)).GetFiles();
-                foreach (var file in files)
-                    file.Delete();
+            if (Directory.Exists(logsPath))
+                Directory.Delete(logsPath, true);
 
-                var dirs = (new DirectoryInfo(logsPath)).GetDirectories();
-                foreach (var dir in dirs)
-                    dir.Delete();
-            }
+            do
+            {
+                Thread.Sleep(100);
+            } while (Directory.Exists(logsPath));
+
+            Directory.CreateDirectory(logsPath);
 
            var template = (string.IsNullOrWhiteSpace(templatePath) || !File.Exists(templatePath)
                     ? null
@@ -68,8 +65,9 @@ namespace SReportLog
 
             var template = new HtmlDocument();
             template.Load(LogTemplatePath);
-            template.Save($"{LogTemplatePath}l");
-                
+            var logList = template.DocumentNode.SelectSingleNode("//*[@id='test-list']");
+            logList.AppendChild(HtmlNode.CreateNode($"<li>{testNameWithoutNamespaceString}</li>"));
+
             var testNamespace = template.DocumentNode.SelectSingleNode("//*[@id='test-namespace']");
             testNamespace.InnerHtml = testNamespaceString;
 
@@ -79,35 +77,38 @@ namespace SReportLog
             var testDateTime = template.DocumentNode.SelectSingleNode("//*[@id='test-date-time']");
             testDateTime.InnerHtml = $"Date: {DateTime.Now.ToLongDateString()} - {DateTime.Now.ToLongTimeString()}";
 
+
             if (sLogs.HasFlag(SLog.Screenshoot))
             {
                 var screenshot = (_driver as ITakesScreenshot).GetScreenshot();
                 screenshot.SaveAsFile(Path.Combine(testLogFolder, $"{nameof(SLog.Screenshoot)}.png"), ScreenshotImageFormat.Png);
+
+                LogTestItem(testCompleteName, $"{nameof(SLog.Screenshoot)}.png", template);
             }
 
             if (sLogs.HasFlag(SLog.BrowserConsole))
             {
-                SeleniumLog(testLogFolder, LogType.Browser);
+                SeleniumLog(testLogFolder, LogType.Browser, testCompleteName, template);
             }
 
             if (sLogs.HasFlag(SLog.SeleniumClient))
             {
-                SeleniumLog(testLogFolder, LogType.Client);
+                SeleniumLog(testLogFolder, LogType.Client, testCompleteName, template);
             }
 
             if (sLogs.HasFlag(SLog.WebDriverInstance))
             {
-                SeleniumLog(testLogFolder, LogType.Driver);
+                SeleniumLog(testLogFolder, LogType.Driver, testCompleteName, template);
             }
 
             if (sLogs.HasFlag(SLog.Profiling))
             {
-                SeleniumLog(testLogFolder, LogType.Profiler);
+                SeleniumLog(testLogFolder, LogType.Profiler, testCompleteName, template);
             }
 
             if (sLogs.HasFlag(SLog.ServerMessages))
             {
-                SeleniumLog(testLogFolder, LogType.Server);
+                SeleniumLog(testLogFolder, LogType.Server, testCompleteName, template);
             }
 
             if (sLogs.HasFlag(SLog.PageHtml))
@@ -131,17 +132,19 @@ namespace SReportLog
                         }
                     }
                 }
+
+                LogTestItem(testCompleteName, $"{nameof(SLog.PageHtml)}.htm", template);
             }
 
             template.Save(LogTemplatePath);
         }
 
-        private void SeleniumLog(string folder, string logType)
+        private void SeleniumLog(string folder, string logType, string testName, HtmlDocument template)
         {
             var logs = _driver.Manage().Logs.GetLog(logType).OrderBy(x => x.Timestamp);
             if (logs.Any())
             {
-                using (var stream = File.CreateText(Path.Combine(folder, $"{nameof(logType)}.txt")))
+                using (var stream = File.CreateText(Path.Combine(folder, $"{logType}.txt")))
                 {
                     foreach (var log in logs)
                     {
@@ -150,7 +153,15 @@ namespace SReportLog
                         stream.WriteLine($"Message: {log.Message} {Environment.NewLine}");
                     }
                 }
+
+                LogTestItem(testName, $"{logType}.txt", template);
             }
+        }
+
+        private void LogTestItem(string testName, string logName, HtmlDocument template)
+        {
+            var logsNode = template.DocumentNode.SelectSingleNode("//*[@id='test-log-list']");
+            logsNode.AppendChild(HtmlNode.CreateNode($@"<li><a target=""_blank"" href=""{testName}/{logName}"">{logName}</a></li>"));
         }
     }
 }
