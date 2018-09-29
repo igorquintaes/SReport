@@ -2,17 +2,17 @@
 using System;
 using System.Linq;
 
-namespace SReport
+namespace SReportLog
 {
     public class SReportBuilder
     {
         private readonly SReport sReport;
 
-        private SReportBuilder(IWebDriver driver, string logsPath) => 
-            sReport = new SReport(driver, logsPath);
+        private SReportBuilder(IWebDriver driver, string logsPath, string template) => 
+            sReport = new SReport(driver, logsPath, template);
 
-        public static SReportBuilder Setup(IWebDriver driver, string logsPath) => 
-            new SReportBuilder(driver, logsPath);
+        public static SReportBuilder Setup(IWebDriver driver, string logsPath, string template = null) => 
+            new SReportBuilder(driver, logsPath, template);
 
         public SReportBuilder AddLog(params SLog[] logs)
         {
