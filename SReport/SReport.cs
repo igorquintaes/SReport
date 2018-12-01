@@ -2,23 +2,16 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
-namespace SReportLog
+namespace SReport
 {
     public class SReport
     {
         private readonly IWebDriver _driver;
 
+        internal SLog sLogs;
+
         public readonly string LogsPath;
-        public bool Screenshoot{get; internal set;}
-        public bool BrowserConsole { get; internal set; }
-        public bool GeneralInfo { get; internal set; }
-        public bool PageStateHtml { get; internal set; }
-        public bool SeleniumClient { get; internal set; }
-        public bool WebDriverInstance { get; internal set; }
-        public bool Profiling { get; internal set; }
-        public bool ServerMessages { get; internal set; }
 
         internal SReport(IWebDriver driver, string logsPath)
         {
@@ -44,56 +37,45 @@ namespace SReportLog
                 foreach (var file in files)
                     file.Delete();
             }
-
-            if (GeneralInfo)
-            {
-                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(GeneralInfo)}.txt")))
-                {
-                    stream.WriteLine($"Date: {DateTime.Now.ToLongDateString()} - {DateTime.Now.ToLongTimeString()}");
-                    stream.WriteLine($"Test name: {testName} {Environment.NewLine}");
-                    stream.WriteLine($"{RuntimeInformation.OSDescription}");
-                    stream.WriteLine($"{RuntimeInformation.FrameworkDescription}");
-                }
-            }
-
-            if (Screenshoot)
+            
+            if (sLogs.HasFlag(SLog.Screenshoot))
             {
                 var screenshot = (_driver as ITakesScreenshot).GetScreenshot();
-                screenshot.SaveAsFile(Path.Combine(tesLogFolder, $"{nameof(Screenshoot)}.png"), ScreenshotImageFormat.Png);
+                screenshot.SaveAsFile(Path.Combine(tesLogFolder, $"{nameof(SLog.Screenshoot)}.png"), ScreenshotImageFormat.Png);
             }
 
-            if (BrowserConsole)
+            if (sLogs.HasFlag(SLog.BrowserConsole))
             {
                 SeleniumLog(tesLogFolder, LogType.Browser);
             }
 
-            if (SeleniumClient)
+            if (sLogs.HasFlag(SLog.SeleniumClient))
             {
                 SeleniumLog(tesLogFolder, LogType.Client);
             }
 
-            if (WebDriverInstance)
+            if (sLogs.HasFlag(SLog.WebDriverInstance))
             {
                 SeleniumLog(tesLogFolder, LogType.Driver);
             }
 
-            if (Profiling)
+            if (sLogs.HasFlag(SLog.Profiling))
             {
                 SeleniumLog(tesLogFolder, LogType.Profiler);
             }
 
-            if (ServerMessages)
+            if (sLogs.HasFlag(SLog.ServerMessages))
             {
                 SeleniumLog(tesLogFolder, LogType.Server);
             }
 
-            if (PageStateHtml)
+            if (sLogs.HasFlag(SLog.PageHtml))
             {
                 var styles = _driver.FindElements(By.TagName("link"))
                     .Where(x => !string.IsNullOrWhiteSpace(x.GetAttribute("href")) && x.GetAttribute("rel").ToLower() == "stylesheet")
                     .Select(x => x.GetAttribute("href"));
 
-                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(PageStateHtml)}.htm")))
+                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(SLog.PageHtml)}.htm")))
                 {
                     stream.WriteLine(_driver.PageSource);
                     foreach(var style in styles)

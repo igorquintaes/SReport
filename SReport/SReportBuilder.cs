@@ -1,6 +1,8 @@
 ﻿using OpenQA.Selenium;
+using System;
+using System.Linq;
 
-namespace SReportLog
+namespace SReport
 {
     public class SReportBuilder
     {
@@ -12,66 +14,18 @@ namespace SReportLog
         public static SReportBuilder Setup(IWebDriver driver, string logsPath) => 
             new SReportBuilder(driver, logsPath);
 
-        public SReportBuilder WithScreenshoot()
+        public SReportBuilder AddLog(params SLog[] logs)
         {
-            sReport.Screenshoot = true;
+            foreach(var log in logs)
+            {
+                sReport.sLogs |= log;
+            }
+
             return this;
         }
 
-        public SReportBuilder WithConsoleLogs()
-        {
-            sReport.BrowserConsole = true;
-            return this;
-        }
-
-        public SReportBuilder WithProfilingLogs()
-        {
-            sReport.Profiling = true;
-            return this;
-        }
-
-        public SReportBuilder WithServerMessagesLogs()
-        {
-            sReport.ServerMessages = true;
-            return this;
-        }
-
-        public SReportBuilder WithSeleniumClientLogs()
-        {
-            sReport.SeleniumClient = true;
-            return this;
-        }
-
-        public SReportBuilder WithWebDriverInstanceLogs()
-        {
-            sReport.WebDriverInstance = true;
-            return this;
-        }
-
-        public SReportBuilder WithPageStateHtmlLogs()
-        {
-            sReport.PageStateHtml = true;
-            return this;
-        }
-
-        public SReportBuilder WithGeneralInfoLogs()
-        {
-            sReport.GeneralInfo = true;
-            return this;
-        }
-
-        public SReportBuilder WithAllLogsEnabled()
-        {
-            sReport.BrowserConsole = true;
-            sReport.GeneralInfo = true;
-            sReport.PageStateHtml = true;
-            sReport.Profiling = true;
-            sReport.Screenshoot = true;
-            sReport.SeleniumClient = true;
-            sReport.ServerMessages = true;
-            sReport.WebDriverInstance = true;
-            return this;
-        }
+        public SReportBuilder AddAllLogs() =>
+            AddLog(Enum.GetValues(typeof(SLog)).Cast<SLog>().ToArray());
 
         public SReport Build() => 
             sReport;
