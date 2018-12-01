@@ -23,11 +23,16 @@ _logReport.Log("your test name / context name");
 If you are not looking fo all logs, just a screenshoot or browser console info, you can filter them after the `Setup` method, calling from the SReportBuilder. As Example:
 
 ```csharp
+// AddLog method cascate
 SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
-                .WithConsoleLogs()
-                .WithGeneralInfo()
-                .WithPageStateHtml()
-                .WithScreenshoot()
+                .AddLog(SLog.Screenshoot)
+                .AddLog(SLog.BrowserConsole)
+                .AddLog(SLog.PageHtml)
+                .Build();
+				
+// Only one AddLog call
+SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
+                .AddLog(SLog.Screenshoot, SLog.BrowserConsole, SLog.PageHtml)
                 .Build();
 ```
 
@@ -39,20 +44,17 @@ Take a Screenshoot based in the Browser View, and saves it as .png file.
 * **Browser Console**: 
 Saves a text file containing browser console content.
 
-* **General Info**:
-Saves a text file containing the test name, generation date, OS and framework version.
-
-* **Page State Html**:
+* **Page Html**:
 Create a .htm file with the real state of the page. It can be also manipulated in a browser DevTools to be easy to correct errors based on element queries.
 
 * **WebDriver Instance**:
-Log Based on Selenium Web Driver Messages log type.
+Log Based on Selenium Web Driver Instance report.
 
 * **Selenium Client**:
-Log Based on Selenium Server log type. 
-
-* **Selenium Client**:
-Log Based on Selenium Client log type. 
+Log Based on Selenium Server report. 
 
 * **Profiling**:
-Log Based on Selenium Profile log type. 
+Log Based on Selenium Profile report. 
+
+* **Profiling**:
+Log Based on Selenium Server Messages report. 
