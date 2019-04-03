@@ -1,5 +1,7 @@
-﻿using OpenQA.Selenium;
+﻿using HtmlAgilityPack;
+using OpenQA.Selenium;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -44,6 +46,35 @@ namespace SReport
                 screenshot.SaveAsFile(Path.Combine(tesLogFolder, $"{nameof(SLog.Screenshoot)}.png"), ScreenshotImageFormat.Png);
             }
 
+            if (sLogs.HasFlag(SLog.PageHtml))
+            {
+                using (var webClient = new System.Net.WebClient())
+                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(SLog.PageHtml)}.htm")))
+                {
+                    var template = new HtmlDocument();
+                    template.LoadHtml(_driver.PageSource);
+                    var nodes = template.DocumentNode.SelectNodes("//link[not(@href='')][@rel='stylesheet']");
+                    if (nodes?.Any() != true)
+                        return;
+
+                    foreach (var node in nodes)
+                    {
+                        var attr = node.GetAttributeValue("href", "");
+                        if (attr.StartsWith("data:text/css"))
+                            continue;
+
+                        var cssValue = webClient.DownloadString(attr);
+                        var newElement = template.CreateElement("style");
+                        newElement.InnerHtml = cssValue;
+                        newElement.Attributes.Add("type", "text/css");
+
+                        node.ParentNode.ReplaceChild(newElement, node);
+                    }
+
+                    stream.WriteLine(template.DocumentNode.InnerHtml);
+                }
+            }
+
             if (sLogs.HasFlag(SLog.BrowserConsole))
             {
                 SeleniumLog(tesLogFolder, LogType.Browser);
@@ -68,35 +99,15 @@ namespace SReport
             {
                 SeleniumLog(tesLogFolder, LogType.Server);
             }
-
-            if (sLogs.HasFlag(SLog.PageHtml))
-            {
-                var styles = _driver.FindElements(By.TagName("link"))
-                    .Where(x => !string.IsNullOrWhiteSpace(x.GetAttribute("href")) && x.GetAttribute("rel").ToLower() == "stylesheet")
-                    .Select(x => x.GetAttribute("href"));
-
-                using (var stream = File.CreateText(Path.Combine(tesLogFolder, $"{nameof(SLog.PageHtml)}.htm")))
-                {
-                    stream.WriteLine(_driver.PageSource);
-                    foreach(var style in styles)
-                    {
-                        using (var webClient = new System.Net.WebClient())
-                        {
-                            try
-                            {
-                                stream.WriteLine($@"<style type=""text/css"">{webClient.DownloadString(style)}</style>");
-                            }
-                            catch { }
-                        }
-                    }
-                }
-            }
         }
 
         private void SeleniumLog(string folder, string logType)
         {
-            var logs = _driver.Manage().Logs.GetLog(logType).OrderBy(x => x.Timestamp);
-            if (logs.Any())
+            if (!_driver.Manage().Logs.AvailableLogTypes.Any(x => x == logType))
+                return;
+
+            var logs = _driver.Manage().Logs.GetLog(logType)?.OrderBy(x => x.Timestamp);
+            if (logs?.Any() == true)
             {
                 using (var stream = File.CreateText(Path.Combine(folder, $"{nameof(logType)}.txt")))
                 {
