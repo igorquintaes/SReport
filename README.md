@@ -6,15 +6,15 @@ SReport is a log manager for [Selenium](https://github.com/SeleniumHQ/selenium) 
 Call `SReportBuilder` to generate a log Report file, based on what type of logs you want and the desired log folder. You should do it only one time:
 
 ```csharp
-SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
-                .WithAllLogsEnabled()
+SReport logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
+                .AddAllLogs()
                 .Build();
 ```
 
 After that, you just can call the method `Log` whenever you want to genetare a log based on test or a context. Generally it is called on tests TearDown, after each text execution if failed.
 
 ```csharp
-_logReport.Log("your test name / context name");
+logReport.Log("your test name / context name");
 ```
 
 
@@ -24,14 +24,14 @@ If you are not looking fo all logs, just a screenshoot or browser console info, 
 
 ```csharp
 // AddLog method cascate
-SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
+SReport logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
                 .AddLog(SLog.Screenshoot)
                 .AddLog(SLog.BrowserConsole)
                 .AddLog(SLog.PageHtml)
                 .Build();
 				
 // Only one AddLog call
-SReport _logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
+SReport logReport = SReportBuilder.Setup(yourIWebDriver, desiredLogFolder)
                 .AddLog(SLog.Screenshoot, SLog.BrowserConsole, SLog.PageHtml)
                 .Build();
 ```
