@@ -1,11 +1,10 @@
 ﻿using HtmlAgilityPack;
 using OpenQA.Selenium;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace SReport
+namespace SReportLib
 {
     public class SReport
     {

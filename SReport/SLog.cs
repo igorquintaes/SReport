@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SReport
+namespace SReportLib
 {
     [Flags]
     public enum SLog

@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-namespace SReport
+namespace SReportLib
 {
     public class SReportBuilder
     {
