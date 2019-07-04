@@ -62,6 +62,18 @@ namespace SReportLib
                         if (attr.StartsWith("data:text/css"))
                             continue;
 
+                        var isUri = !Uri.TryCreate(attr, UriKind.RelativeOrAbsolute, out var uri);
+                        if (!isUri)
+                        {
+                            Uri.TryCreate(_driver.Url, UriKind.RelativeOrAbsolute, out var newUri);
+                            attr = $@"{newUri.Authority}/{uri}";
+                        }
+
+                        if (!attr.StartsWith("http://") || !attr.StartsWith("https://"))
+                        {
+                            attr = $@"http://{attr}";
+                        }
+
                         var cssValue = webClient.DownloadString(attr);
                         var newElement = template.CreateElement("style");
                         newElement.InnerHtml = cssValue;
